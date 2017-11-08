@@ -53,7 +53,7 @@ func (screen TestScreen) Show() {
 
 	program.SetUniformMatrix4fv("camera", camera.GetView(), false)
 
-	model = mgl32.Ident4()
+	model = mgl32.Scale3D(100,100,1)
 	program.SetUniformMatrix4fv("model", &model, false)
 
 	program.SetUniform1i("tex", 0)
@@ -68,7 +68,7 @@ func (screen TestScreen) Show() {
 	var vbo uint32
 	gl.GenBuffers(1, &vbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(cubeVertices)*4, gl.Ptr(cubeVertices), gl.STATIC_DRAW)
+	gl.BufferData(gl.ARRAY_BUFFER, len(planeVertices)*4, gl.Ptr(planeVertices), gl.STATIC_DRAW)
 	//gl.BufferData(gl.ARRAY_BUFFER, len(planeVertices)*4, gl.Ptr(planeVertices), gl.STATIC_DRAW)
 
 	vertAttrib := uint32(gl.GetAttribLocation(program.GetId(), gl.Str(gx.GlString("vert"))))
@@ -82,10 +82,6 @@ func (screen TestScreen) Show() {
 	// Configure global settings
 	gl.Enable(gl.DEPTH_TEST)
 	gl.DepthFunc(gl.LESS)
-
-	for i:=0;i<4;i++{
-
-	}
 
 }
 
@@ -144,25 +140,7 @@ func (screen TestScreen) MouseReleased(x, y int, button glfw.MouseButton) bool {
 var vertexShader string
 var fragmentShader string
 
-var cubeVertices = []float32{
-	//  X, Y, Z, U, V
-	// Bottom
-	-1.0, -1.0, -1.0, 0.0, 0.0,
-	1.0, -1.0, -1.0, 1.0, 0.0,
-	-1.0, -1.0, 1.0, 0.0, 1.0,
-	1.0, -1.0, -1.0, 1.0, 0.0,
-	1.0, -1.0, 1.0, 1.0, 1.0,
-	-1.0, -1.0, 1.0, 0.0, 1.0,
-
-	// Top
-	-1.0, 1.0, -1.0, 0.0, 0.0,
-	-1.0, 1.0, 1.0, 0.0, 1.0,
-	1.0, 1.0, -1.0, 1.0, 0.0,
-	1.0, 1.0, -1.0, 1.0, 0.0,
-	-1.0, 1.0, 1.0, 0.0, 1.0,
-	1.0, 1.0, 1.0, 1.0, 1.0,
-
-	// Front
+var planeVertices = []float32{
 	-1.0, -1.0, 1.0, 1.0, 0.0,
 	1.0, -1.0, 1.0, 0.0, 0.0,
 	-1.0, 1.0, 1.0, 1.0, 1.0,
@@ -170,38 +148,4 @@ var cubeVertices = []float32{
 	1.0, 1.0, 1.0, 0.0, 1.0,
 	-1.0, 1.0, 1.0, 1.0, 1.0,
 
-	// Back
-	-1.0, -1.0, -1.0, 0.0, 0.0,
-	-1.0, 1.0, -1.0, 0.0, 1.0,
-	1.0, -1.0, -1.0, 1.0, 0.0,
-	1.0, -1.0, -1.0, 1.0, 0.0,
-	-1.0, 1.0, -1.0, 0.0, 1.0,
-	1.0, 1.0, -1.0, 1.0, 1.0,
-
-	// Left
-	-1.0, -1.0, 1.0, 0.0, 1.0,
-	-1.0, 1.0, -1.0, 1.0, 0.0,
-	-1.0, -1.0, -1.0, 0.0, 0.0,
-	-1.0, -1.0, 1.0, 0.0, 1.0,
-	-1.0, 1.0, 1.0, 1.0, 1.0,
-	-1.0, 1.0, -1.0, 1.0, 0.0,
-
-	// Right
-	1.0, -1.0, 1.0, 1.0, 1.0,
-	1.0, -1.0, -1.0, 1.0, 0.0,
-	1.0, 1.0, -1.0, 0.0, 0.0,
-	1.0, -1.0, 1.0, 1.0, 1.0,
-	1.0, 1.0, -1.0, 0.0, 0.0,
-	1.0, 1.0, 1.0, 0.0, 1.0,
-}
-
-var planeVertices = []float32{
-
-	// Front
-	-1.0, -1.0, 0.0, 1.0, 0.0,
-	1.0, -1.0, 0.0, 0.0, 0.0,
-	-1.0, 1.0, 0.0, 1.0, 1.0,
-	1.0, -1.0, 0.0, 0.0, 0.0,
-	1.0, 1.0, 0.0, 0.0, 1.0,
-	-1.0, 1.0, 0.0, 1.0, 1.0,
 }
