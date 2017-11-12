@@ -1,4 +1,4 @@
-package gx
+package graphics
 
 type graphics struct {
 	width,height int

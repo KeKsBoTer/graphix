@@ -1,4 +1,4 @@
-package gx
+package graphics
 
 import (
 	"strings"
@@ -13,6 +13,18 @@ type ShaderProgram struct {
 	fragmentShader, vertexShader uint32
 }
 
+func (p *ShaderProgram) Begin() {
+	gl.UseProgram(p.id)
+}
+
+func (p *ShaderProgram) End() {
+	gl.UseProgram(0)
+}
+
+func (p *ShaderProgram) dispose() {
+	gl.DeleteProgram(p.id)
+}
+
 func (p *ShaderProgram) GetId() uint32 {
 	return p.id
 }
@@ -23,7 +35,7 @@ func (p *ShaderProgram) findUniform(location string, onFound func(id int32)) err
 		onFound(uniform)
 		return nil
 	} else {
-		switch(uniform) {
+		switch uniform {
 		case -1:
 			return errors.New("failed to find uniform location '" + location + "'")
 		default:

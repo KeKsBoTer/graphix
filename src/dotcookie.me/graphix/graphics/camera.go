@@ -1,4 +1,4 @@
-package gx
+package graphics
 
 import (
 	"github.com/go-gl/mathgl/mgl32"
@@ -24,10 +24,10 @@ func NewCamera(viewportWidth, viewportHeight float32) *Camera {
 		viewportWidth:  viewportWidth,
 		viewportHeight: viewportHeight,
 	}
-	c.position = mgl32.Vec3{0,0,1}
+	c.position = mgl32.Vec3{0,0,0}
 	c.SetViewport(viewportWidth,viewportHeight)
 	//c.projection = mgl32.Perspective(mgl32.DegToRad(45.0), (c.viewportWidth)/(c.viewportHeight), c.near, c.far)
-	c.view = mgl32.Ident4().Mul4(mgl32.Translate3D(310,1,0))
+	c.view = mgl32.Ident4().Mul4(mgl32.Translate3D(c.position.X(),c.position.Y(),c.position.Z()))
 	//c.view = mgl32.Translate3D(c.position.X(),c.position.Y(),c.position.Z())
 	return &c
 }

@@ -1,4 +1,4 @@
-package gx
+package graphics
 
 import (
 	"github.com/go-gl/glfw/v3.2/glfw"
@@ -6,7 +6,7 @@ import (
 
 type input struct {
 	mouseListeners []MouseListener
-	keyLiseners    []KeyListener
+	keyListeners   []KeyListener
 }
 
 func (i *input) AddMouseListener(listener MouseListener) {
@@ -50,23 +50,23 @@ func (i *input) RemoveMouseListener(listener MouseListener) {
 
 func (i *input) fireKeyEvent(key glfw.Key, action glfw.Action) {
 	if action == glfw.Press {
-		for _, e := range App.Input.keyLiseners {
+		for _, e := range App.Input.keyListeners {
 			e.KeyPressed(key)
 		}
 	} else if action == glfw.Release {
-		for _, e := range App.Input.keyLiseners {
+		for _, e := range App.Input.keyListeners {
 			e.KeyReleased(key)
 		}
 	}
 }
 func (i *input) AddKeyListener(listener KeyListener) {
-	i.keyLiseners = append(i.keyLiseners, listener)
+	i.keyListeners = append(i.keyListeners, listener)
 }
 
 func (i *input) RemoveKeyListener(listener KeyListener) {
-	for index, e := range i.keyLiseners {
+	for index, e := range i.keyListeners {
 		if e == listener {
-			i.keyLiseners = append(i.keyLiseners[:index], i.keyLiseners[index+1:]...)
+			i.keyListeners = append(i.keyListeners[:index], i.keyListeners[index+1:]...)
 			return
 		}
 	}

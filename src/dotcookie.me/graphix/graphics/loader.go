@@ -1,17 +1,16 @@
-package io
+package graphics
 
 import (
 	"image"
 	"fmt"
 	"os"
-	"dotcookie.me/graphix/gx"
 	"image/draw"
 	_ "image/png"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"io/ioutil"
 )
 
-func LoadTexture(file string) (*gx.Texture, error) {
+func LoadTexture(file string) (*Texture, error) {
 	imgFile, err := os.Open(file)
 	if err != nil {
 		return nil, fmt.Errorf("texture %q not found on disk: %v", file, err)
@@ -22,7 +21,7 @@ func LoadTexture(file string) (*gx.Texture, error) {
 	}
 	p := img.Bounds().Size()
 	width, height := int32(p.X), int32(p.Y)
-	texture, err := gx.NewTexture(width, height, gx.Nearest, gx.Nearest, gx.ClampToEdge, gx.ClampToEdge)
+	texture, err := NewTexture(width, height, Nearest, Nearest, ClampToEdge, ClampToEdge)
 	if err != nil {
 		return nil, err
 	}

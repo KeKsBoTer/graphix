@@ -1,4 +1,4 @@
-package gx
+package graphics
 
 import (
 	"github.com/go-gl/gl/v4.1-core/gl"
@@ -51,6 +51,23 @@ func NewTexture(width, height int32, filterMin, filterMax TextureFilter, wrapS, 
 func (t *Texture) GetWidth() int32 {
 	return t.width
 }
+
 func (t *Texture) GetHeight() int32 {
 	return t.height
+}
+
+func (t *Texture) GetSize() (int32, int32) {
+	return t.width, t.height
+}
+
+func (t *Texture) Dispose() {
+	gl.DeleteTextures(1, &t.id)
+}
+
+func (t *Texture) ToRegion() *TextureRegion {
+	return NewTextureRegion(*t, 0, 0, t.width, t.height)
+}
+
+func (t *Texture) Bind(){
+	gl.BindTexture(gl.TEXTURE_2D,t.id)
 }

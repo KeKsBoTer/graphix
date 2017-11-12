@@ -1,20 +1,20 @@
-package game
+package Graphix
 
 import (
-	"dotcookie.me/graphix/gx"
-	"github.com/go-gl/mathgl/mgl32"
+	"dotcookie.me/graphix/graphics"
+	"dotcookie.me/vendor/github.com/go-gl/mathgl/mgl32"
 	"fmt"
 	"log"
-	"github.com/go-gl/gl/v4.1-core/gl"
-	"github.com/go-gl/glfw/v3.2/glfw"
+	"dotcookie.me/vendor/github.com/go-gl/gl/v4.1-core/gl"
+	"dotcookie.me/vendor/github.com/go-gl/glfw/v3.2/glfw"
 	"dotcookie.me/graphix/io"
 )
 
-var texture gx.Texture
+var texture graphics.Texture
 var model mgl32.Mat4
-var program *gx.ShaderProgram
+var program *graphics.ShaderProgram
 var vao uint32
-var camera *gx.Camera
+var camera *graphics.Camera
 
 var windowWidth, windowHeight int
 
@@ -23,11 +23,11 @@ type TestScreen struct {
 
 func (screen TestScreen) Show() {
 
-	windowWidth = gx.App.Graphics.GetWidth()
-	windowHeight = gx.App.Graphics.GetHeight()
+	windowWidth = graphics.App.Graphics.GetWidth()
+	windowHeight = graphics.App.Graphics.GetHeight()
 
-	gx.App.Input.AddMouseListener(screen)
-	gx.App.Input.AddKeyListener(screen)
+	graphics.App.Input.AddMouseListener(screen)
+	graphics.App.Input.AddKeyListener(screen)
 
 	fmt.Println("Create")
 	// Load the texture
@@ -41,13 +41,13 @@ func (screen TestScreen) Show() {
 	fragmentShader = io.LoadFile("base.frag")
 
 	// Configure the vertex and fragment shaders
-	p, err := gx.NewShaderProgram(vertexShader, fragmentShader)
+	p, err := graphics.NewShaderProgram(vertexShader, fragmentShader)
 	if err != nil {
 		panic(err)
 	}
 	program =p
 
-	camera = gx.NewCamera(float32(windowWidth), float32(windowHeight))
+	camera = graphics.NewCamera(float32(windowWidth), float32(windowHeight))
 
 	program.SetUniformMatrix4fv("projection", camera.GetProjection(), false)
 
@@ -71,11 +71,11 @@ func (screen TestScreen) Show() {
 	gl.BufferData(gl.ARRAY_BUFFER, len(planeVertices)*4, gl.Ptr(planeVertices), gl.STATIC_DRAW)
 	//gl.BufferData(gl.ARRAY_BUFFER, len(planeVertices)*4, gl.Ptr(planeVertices), gl.STATIC_DRAW)
 
-	vertAttrib := uint32(gl.GetAttribLocation(program.GetId(), gl.Str(gx.GlString("vert"))))
+	vertAttrib := uint32(gl.GetAttribLocation(program.GetId(), gl.Str(graphics.GlString("vert"))))
 	gl.EnableVertexAttribArray(vertAttrib)
 	gl.VertexAttribPointer(vertAttrib, 3, gl.FLOAT, false, 5*4, gl.PtrOffset(0))
 
-	texCoordAttrib := uint32(gl.GetAttribLocation(program.GetId(), gl.Str(gx.GlString("vertTexCoord"))))
+	texCoordAttrib := uint32(gl.GetAttribLocation(program.GetId(), gl.Str(graphics.GlString("vertTexCoord"))))
 	gl.EnableVertexAttribArray(texCoordAttrib)
 	gl.VertexAttribPointer(texCoordAttrib, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
 

@@ -1,12 +1,12 @@
 package main
 
 import (
-	"dotcookie.me/graphix/gx"
+	"dotcookie.me/graphix/graphics"
 	"dotcookie.me/graphix/game"
 )
 
 func main() {
-	gx.DesktopApplication(gx.WindowConfig{
+	graphics.DesktopApplication(graphics.WindowConfig{
 		Width:      800,
 		Height:     600,
 		Title:      "test",

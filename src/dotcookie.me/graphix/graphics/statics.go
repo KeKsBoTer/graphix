@@ -1,3 +1,3 @@
-package gx
+package graphics
 
 var App Application
