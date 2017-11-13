@@ -88,7 +88,7 @@ func centerWindow(window *glfw.Window) {
 	windowY += float64(windowHeight)
 
 	// Get the list of primaryMonitor
-	primaryMonitor := glfw.GetMonitors()[0]
+	primaryMonitor := glfw.GetPrimaryMonitor()
 	if primaryMonitor == nil {
 		return
 	}
@@ -139,6 +139,7 @@ func DesktopApplication(config WindowConfig, screen Screen) {
 	App = Application{screen: screen}
 	App.Graphics.width = config.Width
 	App.Graphics.height = config.Height
+	App.Graphics.Window = window
 
 	window.SetSizeCallback(func(w *glfw.Window, width,height int) {
 		App.Graphics.width = width

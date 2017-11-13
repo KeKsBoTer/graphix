@@ -71,8 +71,8 @@ func (screen TestScreen) Render(delta float64) {
 		//y = float32(math.Sin(math.Pi*stateTime+i)) * 200
 		//batch.DrawTexture(*texture, 0, y, 100, 100)
 		batch.DrawRegion(*region,0, 0, 100, 100)
-		batch.DrawRegion(*region, 100, 100, 100, 100) //TODO draws second image
-		batch.DrawTexture(texture, 0, 200, 100, 100)
+		//batch.DrawRegion(*region, 100, 100, 100, 100) //TODO draws second image
+		//batch.DrawTexture(texture, 0, 200, 100, 100)
 
 		if glfw.GetTime()-time > border {
 			fmt.Println(i)
@@ -88,8 +88,9 @@ func (screen TestScreen) Dispose() {
 }
 
 func (screen TestScreen) Resize(width, height int32) {
+	fmt.Println("Resize",width,height)
 	camera.SetViewport(float32(width), float32(height))
-	gl.Viewport(0, 0, width, height)
+	//gl.Viewport(0, 0, width, height)
 	batch.SetProjectionMatrix(*camera.GetProjection())
 }
 
