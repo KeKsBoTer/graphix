@@ -90,7 +90,7 @@ func (screen TestScreen) Dispose() {
 func (screen TestScreen) Resize(width, height int32) {
 	fmt.Println("Resize",width,height)
 	camera.SetViewport(float32(width), float32(height))
-	//gl.Viewport(0, 0, width, height)
+	fmt.Println(graphics.App.Graphics.Window.GetFramebufferSize())
 	batch.SetProjectionMatrix(*camera.GetProjection())
 }
 

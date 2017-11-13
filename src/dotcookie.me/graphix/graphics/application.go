@@ -144,6 +144,8 @@ func DesktopApplication(config WindowConfig, screen Screen) {
 	window.SetSizeCallback(func(w *glfw.Window, width,height int) {
 		App.Graphics.width = width
 		App.Graphics.height = height
+		fw,fh := window.GetFramebufferSize()
+		gl.Viewport(0, 0, int32(fw), int32(fh))
 		App.Resize(int32(width), int32(height))
 	})
 
