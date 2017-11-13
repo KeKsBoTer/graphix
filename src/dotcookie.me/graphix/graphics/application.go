@@ -6,11 +6,10 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"runtime"
 	"math"
-	_ "fmt"
 )
 
 func init() {
-	// GLFW event handling must run on the main OS thread
+	// GLFW event handling must run on the main.exe OS thread
 	runtime.LockOSThread()
 }
 
@@ -27,7 +26,7 @@ type Screen interface {
 	Show()
 	Dispose()
 	Render(delta float64)
-	Resize(width, height int)
+	Resize(width, height int32)
 }
 
 type Application struct {
@@ -57,7 +56,7 @@ func (a *Application) Render() {
 	}
 }
 
-func (a *Application) Resize(width, height int) {
+func (a *Application) Resize(width, height int32) {
 	if a.screen != nil {
 		a.screen.Resize(width, height)
 	}
@@ -75,6 +74,38 @@ func (a *Application) SetScreen(screen Screen) {
 
 func (a *Application) GetScreen() Screen {
 	return a.screen
+}
+
+func centerWindow(window *glfw.Window) {
+	// Get window position and size
+	windowX, windowY := window.GetCursorPos()
+	windowWidth, windowHeight := window.GetSize()
+
+	// Halve the window size and use it to adjust the window position to the center of the window
+	windowWidth /= 2
+	windowHeight /= 2
+	windowX += float64(windowWidth)
+	windowY += float64(windowHeight)
+
+	// Get the list of primaryMonitor
+	primaryMonitor := glfw.GetMonitors()[0]
+	if primaryMonitor == nil {
+		return
+	}
+
+	// Figure out which monitor the window is in
+	monitorX, monitorY := primaryMonitor.GetPos()
+
+	// Get the monitor size from its video mode
+	monitorVidMode := primaryMonitor.GetVideoMode()
+	if monitorVidMode == nil {
+		// Video mode is required for width and height, so skip this monitor
+		return
+	}
+	monitorWidth := monitorVidMode.Width
+	monitorHeight := monitorVidMode.Height
+	// Set the window position to the center of the owner monitor
+	window.SetPos(monitorX+(monitorWidth/2)-windowWidth, monitorY+(monitorHeight/2)-windowHeight)
 }
 
 func DesktopApplication(config WindowConfig, screen Screen) {
@@ -109,10 +140,10 @@ func DesktopApplication(config WindowConfig, screen Screen) {
 	App.Graphics.width = config.Width
 	App.Graphics.height = config.Height
 
-	window.SetSizeCallback(func(w *glfw.Window, width int, height int) {
+	window.SetSizeCallback(func(w *glfw.Window, width,height int) {
 		App.Graphics.width = width
 		App.Graphics.height = height
-		App.Resize(width, height)
+		App.Resize(int32(width), int32(height))
 	})
 
 	window.SetMouseButtonCallback(func(w *glfw.Window, button glfw.MouseButton, action glfw.Action, mod glfw.ModifierKey) {
@@ -131,6 +162,8 @@ func DesktopApplication(config WindowConfig, screen Screen) {
 		my := int(math.Floor(ypos))
 		App.Input.fireMouseMoveEvent(mx, my)
 	})
+
+	centerWindow(window)
 	window.MakeContextCurrent()
 	glfw.SwapInterval(glfwBool(config.Vsync))
 
@@ -140,7 +173,7 @@ func DesktopApplication(config WindowConfig, screen Screen) {
 	}
 
 	App.Create()
-
+	App.Resize(int32(config.Width),int32(config.Height))
 	for !window.ShouldClose() {
 		glfw.PollEvents()
 		App.Render()

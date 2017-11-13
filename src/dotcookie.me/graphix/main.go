@@ -9,10 +9,10 @@ func main() {
 	graphics.DesktopApplication(graphics.WindowConfig{
 		Width:      800,
 		Height:     600,
-		Title:      "test",
+		Title:      "Testing environment",
 		Resizeable: true,
-		Vsync:true,
+		Vsync:false,
 		Samples:0,
 		Fullscreen:false,
-	}, new(game.TestScreen))
+	}, game.TestScreen{})
 }

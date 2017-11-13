@@ -8,7 +8,8 @@ import (
 	"github.com/go-gl/glfw/v3.2/glfw"
 )
 
-var texture graphics.Texture
+var texture *graphics.Texture
+var region *graphics.TextureRegion
 var camera *graphics.Camera
 
 var windowWidth, windowHeight int
@@ -27,12 +28,16 @@ func (screen TestScreen) Show() {
 	graphics.App.Input.AddKeyListener(screen)
 
 	fmt.Println("Create")
-	// Load the texture
-	tex, err := graphics.LoadTexture("square.png")
+	tex, err := graphics.LoadTexture("morty.png")
 	if err != nil {
 		log.Fatalln(err)
 	}
-	texture = *tex
+	tex2, err := graphics.LoadTexture("square.png")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	texture = tex2
+	region = graphics.NewTextureRegion(tex, 50, 50, 300, 300)
 
 	batch = graphics.NewSpriteBatch()
 
@@ -44,41 +49,54 @@ func (screen TestScreen) Show() {
 
 }
 
+var x, y float32 = 0, 0
+var stateTime float64 = 0
+
 func (screen TestScreen) Render(delta float64) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	gl.ClearColor(1.0, 1.0, 1.0, 1.0)
-
-	/*mx, my := 0,0//window.GetCursorPos()
-	if window.GetMouseButton(glfw.MouseButton1) == glfw.Press {
-		angleX += (mx - lmx) * elapsed
-		angleY += (my - lmy) * elapsed
-	}
-	lmx, lmy = mx, my*/
-	//model = model.Mul4(mgl32.HomogRotate3D(float32(-angleY), mgl32.Vec3{0, 0, 1}))
-
+	stateTime += delta
 	// Render
 	batch.Begin()
 	batch.SetProjectionMatrix(*camera.GetProjection())
+
+	time := glfw.GetTime()
+
+	border := 1 / 60.0
+
 	batch.SetTransformationMatrix(*camera.GetView())
-	batch.DrawTexture(texture,0,100,100,100)
+	for i := float64(0); i < 1; i++ {
+
+		//x = float32(math.Sin(math.Pi*stateTime+i)) * 200
+		//y = float32(math.Sin(math.Pi*stateTime+i)) * 200
+		//batch.DrawTexture(*texture, 0, y, 100, 100)
+		batch.DrawRegion(*region,0, 0, 100, 100)
+		batch.DrawRegion(*region, 100, 100, 100, 100) //TODO draws second image
+		batch.DrawTexture(texture, 0, 200, 100, 100)
+
+		if glfw.GetTime()-time > border {
+			fmt.Println(i)
+			break
+		}
+	}
 	batch.End()
 }
 
 func (screen TestScreen) Dispose() {
 	fmt.Println("Dispose")
+	texture.Dispose()
 }
 
-func (screen TestScreen) Resize(width, height int) {
-	camera.SetViewport(float32(width),float32(height))
+func (screen TestScreen) Resize(width, height int32) {
+	camera.SetViewport(float32(width), float32(height))
+	gl.Viewport(0, 0, width, height)
 	batch.SetProjectionMatrix(*camera.GetProjection())
 }
 
 func (screen TestScreen) KeyPressed(key glfw.Key) {
-	fmt.Println("Pressed:", key)
 }
 
 func (screen TestScreen) KeyReleased(key glfw.Key) {
-	fmt.Println("Released:", key)
 }
 
 func (screen TestScreen) MouseMoved(x, y int) bool {

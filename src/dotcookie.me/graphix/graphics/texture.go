@@ -65,7 +65,7 @@ func (t *Texture) Dispose() {
 }
 
 func (t *Texture) ToRegion() *TextureRegion {
-	return NewTextureRegion(*t, 0, 0, t.width, t.height)
+	return NewTextureRegion(t, 0, 0, t.width, t.height)
 }
 
 func (t *Texture) Bind(){

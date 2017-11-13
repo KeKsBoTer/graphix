@@ -6,22 +6,22 @@ import (
 )
 
 type TextureRegion struct {
-	texture Texture
+	texture *Texture
 	u, v, // left upper corner
 	u2, v2 float32 // right lower corner
 }
 
-func NewTextureRegion(texture Texture, x, y, width, height int32) *TextureRegion {
+func NewTextureRegion(texture *Texture, x, y, width, height int32) *TextureRegion {
 	region := TextureRegion{texture: texture}
 	region.SetRegionA(x, y, width, height)
 	return &region
 }
 
-func (t *TextureRegion) GetTexture() Texture {
+func (t *TextureRegion) GetTexture() *Texture {
 	return t.texture
 }
 
-func (t *TextureRegion) SetTexture(texture Texture) {
+func (t *TextureRegion) SetTexture(texture *Texture) {
 	t.texture = texture
 }
 
@@ -35,6 +35,10 @@ func (t *TextureRegion) GetRegionPos() (float32, float32) {
 
 func (t *TextureRegion) SetRegionR(u, v, u2, v2 float32) {
 	t.u, t.v, t.u2, t.v2 = u, v, u2, v2
+}
+
+func (t *TextureRegion) GetBounds() (float32, float32, float32, float32) {
+	return t.u, t.v, t.u2, t.v2
 }
 
 func (t *TextureRegion) SetRegionA(x, y, width, height int32) {
