@@ -3,9 +3,9 @@
     <module name="graphix" />
     <working_directory value="$PROJECT_DIR$/" />
     <go_parameters value="-i" />
-    <kind value="PACKAGE" />
-    <filePath value="$PROJECT_DIR$/" />
-    <package value="dotcookie.me/graphix" />
+    <kind value="FILE" />
+    <filePath value="$PROJECT_DIR$/main/main.go" />
+    <package value="main" />
     <directory value="$PROJECT_DIR$/" />
     <method />
   </configuration>

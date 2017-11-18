@@ -1,15 +1,15 @@
-package game
+package main
 
 import (
-	"dotcookie.me/graphix/graphics"
 	"fmt"
 	"log"
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
+	"github.com/KeKsBoTer/graphix/graphics"
 )
 
 var texture *graphics.Texture
-var region,region2 *graphics.TextureRegion
+var region, region2 *graphics.TextureRegion
 var camera *graphics.Camera
 
 var windowWidth, windowHeight int
@@ -67,7 +67,7 @@ func (screen TestScreen) Render(delta float64) {
 
 	batch.SetTransformationMatrix(*camera.GetView())
 	for i := float32(0); i < 10; i++ {
-		batch.DrawRegion(*region,i*100, 0, 100, 100)
+		batch.DrawRegion(*region, i*100, 0, 100, 100)
 		batch.DrawRegion(*region2, i*100, 100, 100, 100) //TODO draws second image
 
 		if glfw.GetTime()-time > border {
@@ -84,7 +84,7 @@ func (screen TestScreen) Dispose() {
 }
 
 func (screen TestScreen) Resize(width, height int32) {
-	fmt.Println("Resize",width,height)
+	fmt.Println("Resize", width, height)
 	camera.SetViewport(float32(width), float32(height))
 	batch.SetProjectionMatrix(*camera.GetProjection())
 }

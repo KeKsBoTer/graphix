@@ -1,8 +1,7 @@
 package main
 
 import (
-	"dotcookie.me/graphix/graphics"
-	"dotcookie.me/graphix/game"
+	"github.com/KeKsBoTer/graphix/graphics"
 )
 
 func main() {
@@ -14,5 +13,5 @@ func main() {
 		Vsync:false,
 		Samples:0,
 		Fullscreen:false,
-	}, game.TestScreen{})
+	}, TestScreen{})
 }
