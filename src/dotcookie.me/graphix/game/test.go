@@ -9,7 +9,7 @@ import (
 )
 
 var texture *graphics.Texture
-var region *graphics.TextureRegion
+var region,region2 *graphics.TextureRegion
 var camera *graphics.Camera
 
 var windowWidth, windowHeight int
@@ -38,6 +38,7 @@ func (screen TestScreen) Show() {
 	}
 	texture = tex2
 	region = graphics.NewTextureRegion(tex, 50, 50, 300, 300)
+	region2 = graphics.NewTextureRegion(tex, 0, 0, 300, 300)
 
 	batch = graphics.NewSpriteBatch()
 
@@ -65,14 +66,9 @@ func (screen TestScreen) Render(delta float64) {
 	border := 1 / 60.0
 
 	batch.SetTransformationMatrix(*camera.GetView())
-	for i := float64(0); i < 1; i++ {
-
-		//x = float32(math.Sin(math.Pi*stateTime+i)) * 200
-		//y = float32(math.Sin(math.Pi*stateTime+i)) * 200
-		//batch.DrawTexture(*texture, 0, y, 100, 100)
-		batch.DrawRegion(*region,0, 0, 100, 100)
-		//batch.DrawRegion(*region, 100, 100, 100, 100) //TODO draws second image
-		//batch.DrawTexture(texture, 0, 200, 100, 100)
+	for i := float32(0); i < 10; i++ {
+		batch.DrawRegion(*region,i*100, 0, 100, 100)
+		batch.DrawRegion(*region2, i*100, 100, 100, 100) //TODO draws second image
 
 		if glfw.GetTime()-time > border {
 			fmt.Println(i)
@@ -90,7 +86,6 @@ func (screen TestScreen) Dispose() {
 func (screen TestScreen) Resize(width, height int32) {
 	fmt.Println("Resize",width,height)
 	camera.SetViewport(float32(width), float32(height))
-	fmt.Println(graphics.App.Graphics.Window.GetFramebufferSize())
 	batch.SetProjectionMatrix(*camera.GetProjection())
 }
 

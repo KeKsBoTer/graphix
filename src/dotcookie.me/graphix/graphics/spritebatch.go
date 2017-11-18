@@ -5,6 +5,11 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 )
 
+const VERTEX_SIZE = 2 + 1 + 2
+const SPRITE_SIZE = 4 * VERTEX_SIZE
+
+const useIndices = false
+
 type SpriteBatch struct {
 	defaultShader    ShaderProgram
 	customShader     *ShaderProgram
@@ -13,8 +18,9 @@ type SpriteBatch struct {
 	projectionMatrix mgl32.Mat4
 	color            float32
 	idx              int
-	vao, vbo         uint32
+	vao, vbo, ibo    uint32
 	vertices         []float32
+	indices          []uint8
 	lastTexture      *Texture
 }
 
@@ -33,14 +39,15 @@ func NewSpriteBatch() *SpriteBatch {
 	batch.color = color.DecodeFloatRGBA()
 	batch.lastTexture = nil
 
+	size := 1000
+
+	batch.vertices = make([]float32, size*SPRITE_SIZE)
+
+	batch.idx = 0
+
 	gl.GenVertexArrays(1, &batch.vao)
 	gl.BindVertexArray(batch.vao)
 
-	perRectangle := 30
-	size := 1000 * perRectangle
-	batch.vertices = make([]float32, size)
-
-	batch.idx = 0
 	gl.GenBuffers(1, &batch.vbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, batch.vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, len(batch.vertices)*4, gl.Ptr(batch.vertices), gl.STATIC_DRAW)
@@ -53,6 +60,24 @@ func NewSpriteBatch() *SpriteBatch {
 	texCoordAttrib := uint32(gl.GetAttribLocation(program.GetId(), gl.Str(GlString("vertTexCoord"))))
 	gl.EnableVertexAttribArray(texCoordAttrib)
 	gl.VertexAttribPointer(texCoordAttrib, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
+
+	if useIndices {
+		length := size * 6
+		batch.indices = make([]uint8, length)
+
+		var j uint8 = 0
+		for i := 0; i < length; i, j = i+6, j+4 {
+			batch.indices[i] = j
+			batch.indices[i+1] = j + 1
+			batch.indices[i+2] = j + 2
+			batch.indices[i+3] = j + 2
+			batch.indices[i+4] = j + 3
+			batch.indices[i+5] = j
+		}
+		gl.GenBuffers(1, &batch.ibo)
+		gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, batch.ibo)
+		gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(batch.indices)*1, gl.Ptr(batch.indices), gl.STATIC_DRAW)
+	}
 
 	return batch
 }
@@ -89,8 +114,12 @@ func (s *SpriteBatch) Flush() {
 
 	gl.ActiveTexture(gl.TEXTURE0)
 	s.lastTexture.Bind()
-
-	gl.DrawArrays(gl.TRIANGLES, 0, 6*2*3)
+	if useIndices {
+		gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, s.ibo)
+		gl.DrawElements(gl.TRIANGLES, int32(len(s.indices)), gl.UNSIGNED_SHORT, gl.PtrOffset(0))
+	} else {
+		gl.DrawArrays(gl.TRIANGLES, 0, 6)
+	}
 	s.idx = 0
 }
 
@@ -183,51 +212,83 @@ func (s *SpriteBatch) GetColor() Color {
 // returns next free element in array
 func updateVertices(vertices *[]float32, x, y, width, height float32, idx int) int {
 	var vx, vy, fx2, fy2 = x, y, x+width, y+height
-	(*vertices)[idx+0] = vx
-	(*vertices)[idx+1] = vy
-	(*vertices)[idx+2] = 1
+	if !useIndices {
+		(*vertices)[idx+0] = vx
+		(*vertices)[idx+1] = vy
+		(*vertices)[idx+2] = 1
 
-	(*vertices)[idx+5] = fx2
-	(*vertices)[idx+6] = vy
-	(*vertices)[idx+7] = 1
+		(*vertices)[idx+5] = fx2
+		(*vertices)[idx+6] = vy
+		(*vertices)[idx+7] = 1
 
-	(*vertices)[idx+10] = vx
-	(*vertices)[idx+11] = fy2
-	(*vertices)[idx+12] = 1
+		(*vertices)[idx+10] = vx
+		(*vertices)[idx+11] = fy2
+		(*vertices)[idx+12] = 1
 
-	(*vertices)[idx+15] = fx2
-	(*vertices)[idx+16] = vy
-	(*vertices)[idx+17] = 1
+		(*vertices)[idx+15] = fx2
+		(*vertices)[idx+16] = vy
+		(*vertices)[idx+17] = 1
 
-	(*vertices)[idx+20] = fx2
-	(*vertices)[idx+21] = fy2
-	(*vertices)[idx+22] = 1
+		(*vertices)[idx+20] = fx2
+		(*vertices)[idx+21] = fy2
+		(*vertices)[idx+22] = 1
 
-	(*vertices)[idx+25] = vx
-	(*vertices)[idx+26] = fy2
-	(*vertices)[idx+27] = 1
-	return idx + 28
+		(*vertices)[idx+25] = vx
+		(*vertices)[idx+26] = fy2
+		(*vertices)[idx+27] = 1
+		return idx + 28
+	} else {
+		(*vertices)[idx] = vx
+		(*vertices)[idx+1] = vy
+
+		(*vertices)[idx+5] = vx
+		(*vertices)[idx+6] = fy2
+
+		(*vertices)[idx+10] = fx2
+		(*vertices)[idx+11] = fy2
+
+		(*vertices)[idx+15] = fx2
+		(*vertices)[idx+16] = vy
+		return idx + 17
+	}
 }
 
 func updateTextureCoords(vertices *[]float32, u, v, u2, v2 float32, idx int) int {
-	(*vertices)[idx+3] = u
-	(*vertices)[idx+4] = v2
+	if !useIndices {
+		(*vertices)[idx+3] = u
+		(*vertices)[idx+4] = v2
 
-	(*vertices)[idx+8] = u2
-	(*vertices)[idx+9] = v2
+		(*vertices)[idx+8] = u2
+		(*vertices)[idx+9] = v2
 
-	(*vertices)[idx+13] = u
-	(*vertices)[idx+14] = v
+		(*vertices)[idx+13] = u
+		(*vertices)[idx+14] = v
 
-	(*vertices)[idx+18] = u2
-	(*vertices)[idx+19] = v2
+		(*vertices)[idx+18] = u2
+		(*vertices)[idx+19] = v2
 
-	(*vertices)[idx+23] = u2
-	(*vertices)[idx+24] = v
+		(*vertices)[idx+23] = u2
+		(*vertices)[idx+24] = v
 
-	(*vertices)[idx+28] = u
-	(*vertices)[idx+29] = v
-	return idx + 30
+		(*vertices)[idx+28] = u
+		(*vertices)[idx+29] = v
+		return idx + 30
+	} else {
+		color := float32(1)
+		(*vertices)[idx+2] = color
+		(*vertices)[idx+3] = u
+		(*vertices)[idx+4] = v
+		(*vertices)[idx+7] = color
+		(*vertices)[idx+8] = u
+		(*vertices)[idx+9] = v2
+		(*vertices)[idx+12] = color
+		(*vertices)[idx+13] = u2
+		(*vertices)[idx+14] = v2
+		(*vertices)[idx+17] = color
+		(*vertices)[idx+18] = u2
+		(*vertices)[idx+19] = v
+		return idx + 20
+	}
 }
 
 func (s *SpriteBatch) DrawTexture(texture *Texture, x, y, width, height float32) {
@@ -249,7 +310,7 @@ func (s *SpriteBatch) DrawRegion(region TextureRegion, x, y, width, height float
 		panic("SpriteBatch.begin must be called before draw")
 	}
 	texture := region.texture
-	if texture != s.lastTexture {
+	if &texture != &s.lastTexture {
 		s.switchTexture(texture)
 	} else if s.idx >= len(s.vertices) {
 		s.Flush()
@@ -257,5 +318,4 @@ func (s *SpriteBatch) DrawRegion(region TextureRegion, x, y, width, height float
 	updateVertices(&s.vertices, x, y, width, height, s.idx)
 	u, v, u2, v2 := region.GetBounds()
 	s.idx = updateTextureCoords(&s.vertices, u, v, u2, v2, s.idx)
-
 }
