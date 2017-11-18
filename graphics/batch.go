@@ -2,7 +2,7 @@ package graphics
 
 import (
 	"github.com/go-gl/mathgl/mgl32"
-	"dotcookie.me/graphix/utils"
+	"github.com/KeKsBoTer/graphix/utils"
 )
 
 type Batch interface {
