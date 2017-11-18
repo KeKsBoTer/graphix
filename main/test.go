@@ -61,19 +61,10 @@ func (screen TestScreen) Render(delta float64) {
 	batch.Begin()
 	batch.SetProjectionMatrix(*camera.GetProjection())
 
-	time := glfw.GetTime()
-
-	border := 1 / 60.0
-
 	batch.SetTransformationMatrix(*camera.GetView())
 	for i := float32(0); i < 10; i++ {
-		batch.DrawRegion(*region, i*100, 0, 100, 100)
-		batch.DrawRegion(*region2, i*100, 100, 100, 100) //TODO draws second image
-
-		if glfw.GetTime()-time > border {
-			fmt.Println(i)
-			break
-		}
+		batch.DrawRegion(*region, i*110, 0, 100, 100)
+		batch.DrawRegion(*region2, i*110, 110, 100, 100) //TODO draws second image
 	}
 	batch.End()
 }
