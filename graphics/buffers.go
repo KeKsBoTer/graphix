@@ -3,7 +3,6 @@ package graphics
 import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"unsafe"
-	"fmt"
 )
 
 type Buffer interface {
@@ -77,7 +76,6 @@ type FloatBuffer struct {
 func (b *FloatBuffer) create() {
 	gl.GenBuffers(1, &b.id)
 	b.Bind()
-	fmt.Println(b.id, b.data)
 	gl.BufferData(b.glType, len(b.data)*floatSize, gl.Ptr(b.data), gl.STATIC_DRAW)
 }
 

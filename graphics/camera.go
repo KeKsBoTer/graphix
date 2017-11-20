@@ -14,6 +14,17 @@ type Camera struct {
 	up, direction                 mgl32.Vec3
 }
 
+func (c *Camera) GetZoom() float32 {
+	return c.zoom
+}
+
+func (c *Camera) SetZoom(zoom float32) {
+	c.zoom = zoom
+}
+func (c *Camera) Position() *mgl32.Vec3 {
+	return &c.position
+}
+
 func (c *Camera) Update() {
 	c.projection = mgl32.Ortho(
 		-c.viewportWidth/2, c.viewportWidth/2,
@@ -22,7 +33,7 @@ func (c *Camera) Update() {
 	).Mul4(mgl32.Scale3D(c.zoom, c.zoom, 1)) // zoom in/out
 	c.view = mgl32.LookAtV(
 		c.position,
-		c.direction,
+		c.position.Add(c.direction),
 		c.up,
 	)
 }
@@ -39,7 +50,7 @@ func NewCamera(viewportWidth, viewportHeight float32) *Camera {
 		viewportWidth:  viewportWidth,
 		viewportHeight: viewportHeight,
 		zoom:           1,
-		position:       mgl32.Vec3{},
+		position:       mgl32.Vec3{0, 0, 0},
 		up:             mgl32.Vec3{0, 1, 0},
 		direction:      mgl32.Vec3{0, 0, -1},
 	}

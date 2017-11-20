@@ -1,7 +1,14 @@
 #version 330
+#ifdef GL_ES
+    #define LOWP lowp
+    precision mediump float;
+#else
+    #define LOWP
+#endif
 uniform sampler2D tex;
 in vec2 fragTexCoord;
+in vec4 LOWP v_color;
 out vec4 outputColor;
 void main() {
-    outputColor = texture(tex, fragTexCoord);
+    outputColor = v_color * texture(tex, fragTexCoord);
 }

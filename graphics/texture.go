@@ -68,6 +68,30 @@ func (t *Texture) ToRegion() *TextureRegion {
 	return NewTextureRegion(t, 0, 0, t.width, t.height)
 }
 
-func (t *Texture) Bind(){
-	gl.BindTexture(gl.TEXTURE_2D,t.id)
+func (t *Texture) Bind() {
+	gl.BindTexture(gl.TEXTURE_2D, t.id)
+}
+
+func (t *Texture) Split(width, height int32) [][]TextureRegion {
+	var tWidth, tHeight int32 = t.GetSize()
+	regions := make([][]TextureRegion, tHeight/height)
+	for i := 0; i < len(regions); i++ {
+		regions[i] = make([]TextureRegion, tWidth/width)
+		for j := 0; j < len(regions[i]); j++ {
+			regions[i][j] = *NewTextureRegion(t, int32(j)*width, int32(i)*height, width, height)
+		}
+	}
+	return regions
+}
+
+func (t *Texture) SplitLine(width, height int32) []TextureRegion {
+	var tWidth, tHeight int32 = t.GetSize()
+	regions := make([]TextureRegion, tWidth/width*tHeight/height)
+	xSize, ySize := int(tWidth/width), int(tHeight/height)
+	for i := 0; i < ySize; i++ {
+		for j := 0; j < xSize; j++ {
+			regions[i*xSize+j] = *NewTextureRegion(t, int32(j)*width, int32(i)*height, width, height)
+		}
+	}
+	return regions
 }

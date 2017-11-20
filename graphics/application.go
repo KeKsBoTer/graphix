@@ -166,6 +166,10 @@ func DesktopApplication(config WindowConfig, screen Screen) {
 		App.Input.fireMouseMoveEvent(mx, my)
 	})
 
+	window.SetScrollCallback(func(w *glfw.Window, xOff float64, yOff float64) {
+		App.Input.fireMouseWheelEvent(xOff,yOff)
+	})
+
 	centerWindow(window)
 	window.MakeContextCurrent()
 	glfw.SwapInterval(glfwBool(config.Vsync))

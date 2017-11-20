@@ -47,4 +47,13 @@ func (t *TextureRegion) SetRegionA(x, y, width, height int32) {
 		utils.Div(x+width, textureWidth), utils.Div(y+height, textureHeight)) // u2,v2
 }
 
-// TODO Setters,Getters,Scroll,Flip,Split
+func (t *TextureRegion) Flip(horizontal, vertical bool) {
+	if vertical {
+		t.u, t.u2 = t.u2, t.u
+	}
+	if horizontal {
+		t.v, t.v2 = t.v2, t.v
+	}
+}
+
+// TODO Setters,Getters,Scroll

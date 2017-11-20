@@ -8,13 +8,13 @@ import (
 	"github.com/KeKsBoTer/graphix/graphics"
 )
 
-var texture *graphics.Texture
-var region, region2 *graphics.TextureRegion
+var animation *graphics.Animation
 var camera *graphics.Camera
 
 var windowWidth, windowHeight int
 
 var batch *graphics.SpriteBatch
+var renderer *graphics.TiledMapRenderer
 
 type TestScreen struct {
 }
@@ -26,52 +26,52 @@ func (screen TestScreen) Show() {
 
 	graphics.App.Input.AddMouseListener(screen)
 	graphics.App.Input.AddKeyListener(screen)
+	graphics.App.Input.AddMouseWheelListener(screen)
 
 	fmt.Println("Create")
-	tex, err := graphics.LoadTexture("morty.png")
+	tex2, err := graphics.LoadTexture("easing.png")
 	if err != nil {
 		log.Fatalln(err)
 	}
-	tex2, err := graphics.LoadTexture("square.png")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	texture = tex2
-	region = graphics.NewTextureRegion(tex, 50, 50, 300, 300)
-	region2 = graphics.NewTextureRegion(tex, 0, 0, 300, 300)
+	animation = graphics.NewAnimation(tex2.Split(32, 32)[0], graphics.LoopPingPong, 1)
 
 	batch = graphics.NewSpriteBatch()
 
 	camera = graphics.NewCamera(float32(windowWidth), float32(windowHeight))
+	camera.SetZoom(2)
+	camera.Update()
 
-	// Configure global settings
-	gl.Enable(gl.DEPTH_TEST)
-	gl.DepthFunc(gl.LESS)
-
+	tiledMap, err := graphics.LoadMap("testdata/orthogonal-outside.tmx")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	renderer = graphics.NewTiledRenderer(*tiledMap, 1)
 }
 
-var x, y float32 = 0, 0
 var stateTime float64 = 0
 
 func (screen TestScreen) Render(delta float64) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-	gl.ClearColor(1.0, 1.0, 1.0, 1.0)
+	gl.ClearColor(0.0, 1.0, 1.0, 1.0)
 	stateTime += delta
+
 	// Render
 	batch.Begin()
 	batch.SetProjectionMatrix(*camera.GetProjection())
-
 	batch.SetTransformationMatrix(*camera.GetView())
-	for i := float32(0); i < 10; i++ {
-		batch.DrawRegion(*region, i*110, 0, 100, 100)
-		batch.DrawRegion(*region2, i*110, 110, 100, 100) //TODO draws second image
-	}
+
+	gl.Enable(gl.BLEND)
+	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+
+	renderer.Render(batch)
+
 	batch.End()
 }
 
 func (screen TestScreen) Dispose() {
 	fmt.Println("Dispose")
-	texture.Dispose()
+	r := animation.GetRegion(0)
+	r.GetTexture().Dispose()
 }
 
 func (screen TestScreen) Resize(width, height int32) {
@@ -81,6 +81,16 @@ func (screen TestScreen) Resize(width, height int32) {
 }
 
 func (screen TestScreen) KeyPressed(key glfw.Key) {
+	switch key {
+	case 93:
+		camera.SetZoom(camera.GetZoom()+0.1)
+		camera.Update()
+		break
+	case 47:
+		camera.SetZoom(camera.GetZoom()-0.1)
+		camera.Update()
+		break
+	}
 }
 
 func (screen TestScreen) KeyReleased(key glfw.Key) {
@@ -95,4 +105,10 @@ func (screen TestScreen) MousePressed(x, y int, button glfw.MouseButton) bool {
 }
 func (screen TestScreen) MouseReleased(x, y int, button glfw.MouseButton) bool {
 	return true
+}
+
+func (screen TestScreen) Scrolled(xOff, yOff float64) {
+	camera.Position()[0] -= float32(xOff)
+	camera.Position()[1] += float32(yOff)
+	camera.Update()
 }

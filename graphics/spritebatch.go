@@ -15,7 +15,7 @@ type SpriteBatch struct {
 	transformMatrix  mgl32.Mat4
 	projectionMatrix mgl32.Mat4
 	color            float32
-	idx              int
+	idx              int32
 	vao              uint32
 	vertices         FloatBuffer
 	indices          ShortBuffer
@@ -33,8 +33,8 @@ func NewSpriteBatch() *SpriteBatch {
 		panic(err)
 	}
 	batch.defaultShader = *p
-	color := Color{0, 0, 0, 1}
-	batch.color = color.DecodeFloatRGBA()
+	white := Color{1, 1, 1, 1}
+	batch.color = white.Pack() //white
 	batch.lastTexture = nil
 
 	size := 1000
@@ -49,11 +49,15 @@ func NewSpriteBatch() *SpriteBatch {
 	program := batch.getActiveShaderProgram()
 	vertAttrib := uint32(gl.GetAttribLocation(program.GetId(), gl.Str(GlString("vert"))))
 	gl.EnableVertexAttribArray(vertAttrib)
-	gl.VertexAttribPointer(vertAttrib, 3, gl.FLOAT, false, 5*4, gl.PtrOffset(0))
+	gl.VertexAttribPointer(vertAttrib, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(0))
 
 	texCoordAttrib := uint32(gl.GetAttribLocation(program.GetId(), gl.Str(GlString("vertTexCoord"))))
 	gl.EnableVertexAttribArray(texCoordAttrib)
 	gl.VertexAttribPointer(texCoordAttrib, 2, gl.FLOAT, false, 5*4, gl.PtrOffset(3*4))
+
+	colorAttrib := uint32(gl.GetAttribLocation(program.GetId(), gl.Str(GlString("a_color"))))
+	gl.EnableVertexAttribArray(colorAttrib)
+	gl.VertexAttribPointer(colorAttrib, 4, gl.UNSIGNED_BYTE, true, 5*4, gl.PtrOffset(2*4))
 
 	length := size * 6
 	indices := make([]uint16, length)
@@ -86,6 +90,7 @@ func (s *SpriteBatch) Begin() {
 	gl.DepthMask(false)
 	s.getActiveShaderProgram().Begin()
 	s.setupMatrices()
+	gl.DepthMask(false)
 	s.drawing = true
 }
 
@@ -103,7 +108,7 @@ func (s *SpriteBatch) Flush() {
 	gl.ActiveTexture(gl.TEXTURE0)
 	s.lastTexture.Bind()
 	s.indices.Bind()
-	gl.DrawElements(gl.TRIANGLES, int32(len(s.indices.data)), gl.UNSIGNED_SHORT, gl.PtrOffset(0))
+	gl.DrawElements(gl.TRIANGLES, s.idx/20*6, gl.UNSIGNED_SHORT, gl.PtrOffset(0))
 	s.idx = 0
 }
 
@@ -185,8 +190,8 @@ func (s *SpriteBatch) GetProjectionMatrix() mgl32.Mat4 {
 	return s.projectionMatrix
 }
 
-func (s *SpriteBatch) SetColor(color Color) {
-	s.color = color.DecodeFloatRGBA()
+func (s *SpriteBatch) SetColor(c Color) {
+	s.color = c.Pack()
 }
 
 func (s *SpriteBatch) GetColor() Color {
@@ -194,7 +199,7 @@ func (s *SpriteBatch) GetColor() Color {
 }
 
 // returns next free element in array
-func updateVertices(vertices *[]float32, x, y, width, height float32, idx int) int {
+func updateVertices(vertices *[]float32, x, y, width, height float32, idx int32) int32 {
 	var vx, vy, fx2, fy2 = x, y, x+width, y+height
 
 	(*vertices)[idx] = vx
@@ -211,8 +216,7 @@ func updateVertices(vertices *[]float32, x, y, width, height float32, idx int) i
 	return idx + 17
 }
 
-func updateTextureCoords(vertices *[]float32, u, v, u2, v2 float32, idx int) int {
-	color := float32(1)
+func updateTextureCoords(vertices *[]float32, u, v, u2, v2 float32, idx int32, color float32) int32 {
 	(*vertices)[idx+2] = color
 	(*vertices)[idx+3] = u
 	(*vertices)[idx+4] = v
@@ -234,12 +238,11 @@ func (s *SpriteBatch) DrawTexture(texture *Texture, x, y, width, height float32)
 	}
 	if texture != s.lastTexture {
 		s.switchTexture(texture)
-	} else if s.idx >= len(s.vertices.data) {
+	} else if s.idx >= int32(len(s.vertices.data)) {
 		s.Flush()
 	}
 	updateVertices(&s.vertices.data, x, y, width, height, s.idx)
-	s.idx = updateTextureCoords(&s.vertices.data, 0, 0, 1, 1, s.idx)
-
+	s.idx = updateTextureCoords(&s.vertices.data, 0, 0, 1, 1, s.idx, s.color)
 }
 
 func (s *SpriteBatch) DrawRegion(region TextureRegion, x, y, width, height float32) {
@@ -249,10 +252,10 @@ func (s *SpriteBatch) DrawRegion(region TextureRegion, x, y, width, height float
 	texture := region.texture
 	if &texture != &s.lastTexture {
 		s.switchTexture(texture)
-	} else if s.idx >= len(s.vertices.data) {
+	} else if s.idx >= int32(len(s.vertices.data)) {
 		s.Flush()
 	}
 	updateVertices(&s.vertices.data, x, y, width, height, s.idx)
 	u, v, u2, v2 := region.GetBounds()
-	s.idx = updateTextureCoords(&s.vertices.data, u, v, u2, v2, s.idx)
+	s.idx = updateTextureCoords(&s.vertices.data, u, v, u2, v2, s.idx, s.color)
 }
