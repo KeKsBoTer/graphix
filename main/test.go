@@ -6,6 +6,7 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/KeKsBoTer/graphix/graphics"
+	"time"
 )
 
 var animation *graphics.Animation
@@ -15,6 +16,10 @@ var windowWidth, windowHeight int
 
 var batch *graphics.SpriteBatch
 var renderer *graphics.TiledMapRenderer
+
+var renderCount int
+
+var printFPS = false
 
 type TestScreen struct {
 }
@@ -44,6 +49,15 @@ func (screen TestScreen) Show() {
 		log.Fatalln(err)
 	}
 	renderer = graphics.NewTiledRenderer(*tiledMap, 1)
+	go func() {
+		for ; ; {
+			if printFPS {
+				fmt.Println(renderCount)
+			}
+			renderCount = 0
+			time.Sleep(time.Second)
+		}
+	}()
 }
 
 var stateTime float64 = 0
@@ -61,9 +75,11 @@ func (screen TestScreen) Render(delta float64) {
 	gl.Enable(gl.BLEND)
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
+	renderer.SetFrustumC(camera)
 	renderer.Render(batch)
 
 	batch.End()
+	renderCount++
 }
 
 func (screen TestScreen) Dispose() {
@@ -81,12 +97,15 @@ func (screen TestScreen) Resize(width, height int32) {
 func (screen TestScreen) KeyPressed(key glfw.Key) {
 	switch key {
 	case 93:
-		camera.SetZoom(camera.GetZoom()+0.1)
+		camera.SetZoom(camera.GetZoom() + 0.1)
 		camera.Update()
 		break
 	case 47:
-		camera.SetZoom(camera.GetZoom()-0.1)
+		camera.SetZoom(camera.GetZoom() - 0.1)
 		camera.Update()
+		break
+	case glfw.KeyD:
+		printFPS = !printFPS
 		break
 	}
 }

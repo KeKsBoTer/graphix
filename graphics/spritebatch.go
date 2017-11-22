@@ -19,10 +19,14 @@ type SpriteBatch struct {
 	vao              uint32
 	vertices         FloatBuffer
 	indices          ShortBuffer
-	lastTexture      *Texture
+	lastTexture      Texture
 }
 
 func NewSpriteBatch() *SpriteBatch {
+	return NewSpriteBatchS(1395)
+}
+
+func NewSpriteBatchS(size int) *SpriteBatch {
 	batch := new(SpriteBatch)
 	vertexShader := LoadFile("base.vert")
 	fragmentShader := LoadFile("base.frag")
@@ -35,9 +39,7 @@ func NewSpriteBatch() *SpriteBatch {
 	batch.defaultShader = *p
 	white := Color{1, 1, 1, 1}
 	batch.color = white.Pack() //white
-	batch.lastTexture = nil
-
-	size := 1000
+	batch.lastTexture = Texture{}
 
 	batch.idx = 0
 
@@ -112,7 +114,7 @@ func (s *SpriteBatch) Flush() {
 	s.idx = 0
 }
 
-func (s *SpriteBatch) switchTexture(texture *Texture) {
+func (s *SpriteBatch) switchTexture(texture Texture) {
 	s.Flush()
 	s.lastTexture = texture
 }
@@ -124,7 +126,7 @@ func (s *SpriteBatch) End() {
 	if s.idx > 0 {
 		s.Flush()
 	}
-	s.lastTexture = nil
+	s.lastTexture = Texture{}
 	s.drawing = false
 	gl.DepthMask(true)
 	s.getActiveShaderProgram().End()
@@ -232,7 +234,7 @@ func updateTextureCoords(vertices *[]float32, u, v, u2, v2 float32, idx int32, c
 	return idx + 20
 }
 
-func (s *SpriteBatch) DrawTexture(texture *Texture, x, y, width, height float32) {
+func (s *SpriteBatch) DrawTexture(texture Texture, x, y, width, height float32) {
 	if !s.IsDrawing() {
 		panic("SpriteBatch.begin must be called before draw")
 	}
@@ -249,8 +251,8 @@ func (s *SpriteBatch) DrawRegion(region TextureRegion, x, y, width, height float
 	if !s.IsDrawing() {
 		panic("SpriteBatch.begin must be called before draw")
 	}
-	texture := region.texture
-	if &texture != &s.lastTexture {
+	texture := *region.texture
+	if texture != s.lastTexture {
 		s.switchTexture(texture)
 	} else if s.idx >= int32(len(s.vertices.data)) {
 		s.Flush()
