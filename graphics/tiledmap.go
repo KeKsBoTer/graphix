@@ -31,6 +31,7 @@ type Property = tmx.Property
 
 type TiledMap struct {
 	tmx.Map
+	images   map[string]Texture
 	tileSets map[string][]TextureRegion
 	filePath string
 }
@@ -50,13 +51,27 @@ func LoadMap(path string) (*TiledMap, error) {
 	}
 	tiledMap := TiledMap{
 		Map:      *tmxMap,
+		images:   make(map[string]Texture),
 		tileSets: make(map[string][]TextureRegion, len(tmxMap.Tilesets)),
 		filePath: filepath.Dir(path),
 	}
-	for _, t := range tiledMap.Tilesets {
+	for _, t := range tiledMap.ImageLayers {
 		texture, err := LoadTexture(tiledMap.filePath + "/" + t.Image.Source)
 		if err != nil {
-			return nil, err
+			log.Fatalln(err)
+		}
+		tiledMap.images[t.Image.Source] = *texture
+	}
+	for _, t := range tiledMap.Tilesets {
+		var texture *Texture
+		if val, ok := tiledMap.images[t.Image.Source]; ok {
+			texture = &val
+		} else {
+			tex, err := LoadTexture(tiledMap.filePath + "/" + t.Image.Source)
+			if err != nil {
+				return nil, err
+			}
+			texture = tex
 		}
 		tiledMap.tileSets[t.Name] = texture.SplitLine(int32(t.TileWidth), int32(t.TileHeight))
 	}

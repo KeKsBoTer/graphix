@@ -38,8 +38,6 @@ func (screen TestScreen) Show() {
 	batch = graphics.NewSpriteBatch()
 
 	camera = graphics.NewCamera(float32(windowWidth), float32(windowHeight))
-	camera.SetZoom(2)
-	camera.Update()
 
 	tiledMap, err := graphics.LoadMap("testdata/orthogonal-outside.tmx")
 	if err != nil {
@@ -52,7 +50,7 @@ var stateTime float64 = 0
 
 func (screen TestScreen) Render(delta float64) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-	gl.ClearColor(0.0, 1.0, 1.0, 1.0)
+	gl.ClearColor(1.0, 1.0, 1.0, 1.0)
 	stateTime += delta
 
 	// Render
