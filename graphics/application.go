@@ -8,6 +8,9 @@ import (
 	"math"
 )
 
+// The global instance of the application
+var App Application
+
 func init() {
 	// GLFW event handling must run on the main.exe OS thread
 	runtime.LockOSThread()
@@ -139,12 +142,12 @@ func DesktopApplication(config WindowConfig, screen Screen) {
 	App = Application{screen: screen}
 	App.Graphics.width = config.Width
 	App.Graphics.height = config.Height
-	App.Graphics.Window = window
+	App.Graphics.window = window
 
-	window.SetSizeCallback(func(w *glfw.Window, width,height int) {
+	window.SetSizeCallback(func(w *glfw.Window, width, height int) {
 		App.Graphics.width = width
 		App.Graphics.height = height
-		fw,fh := window.GetFramebufferSize()
+		fw, fh := window.GetFramebufferSize()
 		gl.Viewport(0, 0, int32(fw), int32(fh))
 		App.Resize(int32(width), int32(height))
 	})
@@ -167,7 +170,7 @@ func DesktopApplication(config WindowConfig, screen Screen) {
 	})
 
 	window.SetScrollCallback(func(w *glfw.Window, xOff float64, yOff float64) {
-		App.Input.fireMouseWheelEvent(xOff,yOff)
+		App.Input.fireMouseWheelEvent(xOff, yOff)
 	})
 
 	centerWindow(window)
@@ -180,7 +183,7 @@ func DesktopApplication(config WindowConfig, screen Screen) {
 	}
 
 	App.Create()
-	App.Resize(int32(config.Width),int32(config.Height))
+	App.Resize(int32(config.Width), int32(config.Height))
 	for !window.ShouldClose() {
 		glfw.PollEvents()
 		App.Render()

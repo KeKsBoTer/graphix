@@ -1,5 +1,5 @@
 package main
-
+/*
 import (
 	"fmt"
 	"log"
@@ -107,6 +107,9 @@ func (screen TestScreen) KeyPressed(key glfw.Key) {
 	case glfw.KeyD:
 		printFPS = !printFPS
 		break
+	case glfw.KeyF:
+		//graphics.App.Graphics.ToggleFullScreen(!graphics.App.Graphics.IsFullScreen())
+		break
 	}
 }
 
@@ -129,3 +132,4 @@ func (screen TestScreen) Scrolled(xOff, yOff float64) {
 	camera.Position()[1] += float32(yOff)
 	camera.Update()
 }
+*/

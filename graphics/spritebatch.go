@@ -28,8 +28,8 @@ func NewSpriteBatch() *SpriteBatch {
 
 func NewSpriteBatchS(size int) *SpriteBatch {
 	batch := new(SpriteBatch)
-	vertexShader := LoadFile("base.vert")
-	fragmentShader := LoadFile("base.frag")
+	vertexShader := LoadFile("shader/spriteBatch.vert")
+	fragmentShader := LoadFile("shader/spriteBatch.frag")
 
 	// Configure the vertex and fragment shader
 	p, err := NewShaderProgram(vertexShader, fragmentShader)

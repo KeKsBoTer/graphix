@@ -10,8 +10,8 @@ func main() {
 		Height:     600,
 		Title:      "Testing environment",
 		Resizeable: true,
-		Vsync:false,
+		Vsync:true,
 		Samples:0,
 		Fullscreen:false,
-	}, TestScreen{})
+	}, UIScreen{})
 }
