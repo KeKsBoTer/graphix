@@ -2,7 +2,7 @@ package graphics
 
 import (
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/go-gl/gl/v4.1-core/gl"
+	"github.com/go-gl/gl/v3.2-core/gl"
 )
 
 const VertexSize = 2 + 1 + 2
@@ -154,6 +154,7 @@ func (s *SpriteBatch) SetShader(program *ShaderProgram) {
 		s.getActiveShaderProgram().End()
 	}
 	s.customShader = program
+
 	if s.drawing {
 		s.getActiveShaderProgram().Begin()
 		s.setupMatrices()

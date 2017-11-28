@@ -6,7 +6,7 @@ import (
 	"os"
 	"image/draw"
 	_ "image/png"
-	"github.com/go-gl/gl/v4.1-core/gl"
+	"github.com/go-gl/gl/v3.2-core/gl"
 	"io/ioutil"
 )
 
@@ -21,7 +21,7 @@ func LoadTexture(file string) (*Texture, error) {
 	}
 	p := img.Bounds().Size()
 	width, height := int32(p.X), int32(p.Y)
-	texture, err := NewTexture(width, height, Nearest, Nearest, ClampToEdge, ClampToEdge)
+	texture, err := NewTexture(width, height, Linear, Linear, ClampToEdge, ClampToEdge)
 	if err != nil {
 		return nil, err
 	}

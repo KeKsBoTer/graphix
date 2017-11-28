@@ -2,7 +2,7 @@ package graphics
 
 import (
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/go-gl/gl/v4.1-core/gl"
+	"github.com/go-gl/gl/v3.2-core/gl"
 )
 
 type ShapeRenderer struct {
