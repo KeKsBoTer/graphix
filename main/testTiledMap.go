@@ -1,12 +1,12 @@
 package main
-/*
+
 import (
 	"fmt"
 	"log"
 	"github.com/go-gl/gl/v3.2-core/gl"
-	"github.com/go-gl/glfw/v3.2-core/glfw"
 	"github.com/KeKsBoTer/graphix/graphics"
 	"time"
+	"github.com/go-gl/glfw/v3.2/glfw"
 )
 
 var animation *graphics.Animation
@@ -34,7 +34,7 @@ func (screen TestScreen) Show() {
 	graphics.App.Input.AddMouseWheelListener(screen)
 
 	fmt.Println("Create")
-	tex2, err := graphics.LoadTexture("easing.png")
+	tex2, err := graphics.LoadTexture("square.png")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -69,8 +69,8 @@ func (screen TestScreen) Render(delta float64) {
 
 	// Render
 	batch.Begin()
-	batch.SetProjectionMatrix(*camera.GetProjection())
-	batch.SetTransformationMatrix(*camera.GetView())
+	batch.SetProjectionMatrix(camera.GetProjection())
+	batch.SetTransformationMatrix(camera.GetView())
 
 	gl.Enable(gl.BLEND)
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
@@ -91,7 +91,7 @@ func (screen TestScreen) Dispose() {
 func (screen TestScreen) Resize(width, height int32) {
 	fmt.Println("Resize", width, height)
 	camera.SetViewport(float32(width), float32(height))
-	batch.SetProjectionMatrix(*camera.GetProjection())
+	batch.SetProjectionMatrix(camera.GetProjection())
 }
 
 func (screen TestScreen) KeyPressed(key glfw.Key) {
@@ -132,4 +132,3 @@ func (screen TestScreen) Scrolled(xOff, yOff float64) {
 	camera.Position()[1] += float32(yOff)
 	camera.Update()
 }
-*/

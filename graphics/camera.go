@@ -58,12 +58,12 @@ func NewCamera(viewportWidth, viewportHeight float32) *Camera {
 	return &c
 }
 
-func (c *Camera) GetProjection() *mgl32.Mat4 {
-	return &c.projection
+func (c *Camera) GetProjection() mgl32.Mat4 {
+	return c.projection
 }
 
-func (c *Camera) GetView() *mgl32.Mat4 {
-	return &c.view
+func (c *Camera) GetView() mgl32.Mat4 {
+	return c.view
 }
 
 func (c *Camera) SetPosition(x, y float32) {
@@ -72,4 +72,9 @@ func (c *Camera) SetPosition(x, y float32) {
 
 func (c *Camera) Translate(x, y float32) {
 	c.position[0], c.position[1] = c.position[0]+x, c.position[1]+y
+}
+
+func (c *Camera) IsInView(x, y float32) bool {
+	sPos := c.projection.Mul4(c.view).Mul4x1(mgl32.Vec4{x, y, 0, 1})
+	return sPos.X() >= 0 && sPos.Y() >= 0
 }

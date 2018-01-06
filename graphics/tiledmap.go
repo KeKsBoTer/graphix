@@ -60,6 +60,7 @@ func LoadMap(path string) (*TiledMap, error) {
 		if err != nil {
 			log.Fatalln(err)
 		}
+		texture.SetFilter(Nearest, Nearest)
 		tiledMap.images[t.Image.Source] = *texture
 	}
 	for _, t := range tiledMap.Tilesets {
@@ -67,11 +68,11 @@ func LoadMap(path string) (*TiledMap, error) {
 		if val, ok := tiledMap.images[t.Image.Source]; ok {
 			texture = &val
 		} else {
-			tex, err := LoadTexture(tiledMap.filePath + "/" + t.Image.Source)
+			texture, err = LoadTexture(tiledMap.filePath + "/" + t.Image.Source)
 			if err != nil {
 				return nil, err
 			}
-			texture = tex
+			texture.SetFilter(Nearest,Nearest)
 		}
 		tiledMap.tileSets[t.Name] = texture.SplitLine(int32(t.TileWidth), int32(t.TileHeight))
 	}

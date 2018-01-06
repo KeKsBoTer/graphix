@@ -60,6 +60,11 @@ func (p *ShaderProgram) SetUniform1i(location string, value int32) error {
 		gl.Uniform1i(id, value)
 	})
 }
+func (p *ShaderProgram) SetUniform1f(location string, value float32) error {
+	return p.findUniform(location, func(id int32) {
+		gl.Uniform1f(id, value)
+	})
+}
 
 func NewShaderProgram(vertexShaderSource, fragmentShaderSource string) (*ShaderProgram, error) {
 	vertexShaderSource = GlString(vertexShaderSource)

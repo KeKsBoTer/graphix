@@ -7,25 +7,23 @@ import (
 	"time"
 	"log"
 	"github.com/go-gl/glfw/v3.2/glfw"
-	"io/ioutil"
+	"math/rand"
+	"github.com/KeKsBoTer/graphix/graphics/gui"
 )
 
 type UIScreen struct{}
 
 var uiHolder = struct {
-	animation *graphics.Animation
-	camera    *graphics.Camera
-
 	windowWidth, windowHeight int
-
-	shape       *graphics.ShapeRenderer
-	spriteBatch *graphics.SpriteBatch
-	font        *graphics.BitmapFont
 
 	renderCount int
 
 	printFPS  bool
 	stateTime float64
+
+	fps int
+
+	gui *gui.GUI
 }{}
 
 func (screen UIScreen) Show() {
@@ -37,87 +35,55 @@ func (screen UIScreen) Show() {
 	graphics.App.Input.AddKeyListener(screen)
 	graphics.App.Input.AddMouseWheelListener(screen)
 
-	uiHolder.camera = graphics.NewCamera(float32(windowWidth), float32(windowHeight))
-	uiHolder.camera.SetZoom(2.5)
-	uiHolder.camera.Position()[0] = 390
-	uiHolder.shape = graphics.NewShapeRenderer()
-
-	btmFont, err := graphics.LoadBitmapFont("Fonts/arial.fnt")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	uiHolder.font = btmFont
-	uiHolder.spriteBatch = graphics.NewSpriteBatch()
-
-	vert, err := ioutil.ReadFile("shader/font.vert")
-	frag, err := ioutil.ReadFile("shader/font.frag")
-	fontShader, err := graphics.NewShaderProgram(string(vert), string(frag))
-	if err!=nil{
-		log.Fatalln(err)
-	}
-	uiHolder.spriteBatch.SetShader(fontShader)
-
 	uiHolder.printFPS = false
 	go func() {
 		for ; ; {
 			if uiHolder.printFPS {
 				fmt.Println(uiHolder.renderCount)
 			}
+			uiHolder.fps = uiHolder.renderCount
 			uiHolder.renderCount = 0
 			time.Sleep(time.Second)
 		}
 	}()
+
+	test := make([]byte, 2000)
+	for i := 0; i < len(test); i++ {
+		test[i] = byte(rand.Intn(128))
+		if i != 0 && i%100 == 0 {
+			i++
+			test[i] = '\n'
+		}
+	}
+
+	uiHolder.gui = gui.NewGUI(windowWidth, windowHeight)
+	tex, err := graphics.LoadTexture("morty.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	region := graphics.NewTextureRegion(tex, 0, 0, tex.GetWidth(), tex.GetHeight())
+	img := gui.NewImage(*region)
+	uiHolder.gui.AddComponent(img)
 }
 
 func (screen UIScreen) Render(delta float64) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-	gl.ClearColor(0.5, .5, 1.0, 1.0)
+	gl.ClearColor(1, 1, 1.0, 1.0)
 	uiHolder.stateTime += delta
 
-	gl.Enable(gl.BLEND)
-	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
-	uiHolder.spriteBatch.SetColor(graphics.Color{1, 0, 0, 1})
-
-	uiHolder.spriteBatch.SetProjectionMatrix(*uiHolder.camera.GetProjection())
-	uiHolder.spriteBatch.SetTransformationMatrix(*uiHolder.camera.GetView())
-	uiHolder.shape.SetProjectionMatrix(*uiHolder.camera.GetProjection())
-	uiHolder.shape.SetTransformationMatrix(*uiHolder.camera.GetView())
-
-	uiHolder.shape.Begin()
-	uiHolder.shape.DrawRectangle(0, 0, 1000, 1)
-	uiHolder.shape.End()
-
-	uiHolder.spriteBatch.Begin()
-	uiHolder.font.Draw("golang is Awsome", uiHolder.spriteBatch)
-	uiHolder.spriteBatch.End()
-
+	uiHolder.gui.Render(delta)
 	uiHolder.renderCount++
 }
 
 func (screen UIScreen) Dispose() {
+	uiHolder.gui.Dispose()
 }
 
 func (screen UIScreen) Resize(width, height int32) {
-	uiHolder.camera.SetViewport(float32(width), float32(height))
+	uiHolder.gui.Resize(width, height)
 }
 
 func (screen UIScreen) KeyPressed(key glfw.Key) {
-	switch key {
-	case 93:
-		uiHolder.camera.SetZoom(uiHolder.camera.GetZoom() + 0.5)
-		uiHolder.camera.Update()
-		break
-	case 47:
-		uiHolder.camera.SetZoom(uiHolder.camera.GetZoom() - 0.5)
-		uiHolder.camera.Update()
-		break
-	case glfw.KeyD:
-		uiHolder.printFPS = !uiHolder.printFPS
-		break
-	case glfw.KeyF:
-		//graphics.App.Graphics.ToggleFullScreen(!graphics.App.Graphics.IsFullScreen())
-		break
-	}
 }
 
 func (screen UIScreen) KeyReleased(key glfw.Key) {
@@ -135,7 +101,4 @@ func (screen UIScreen) MouseReleased(x, y int, button glfw.MouseButton) bool {
 }
 
 func (screen UIScreen) Scrolled(xOff, yOff float64) {
-	uiHolder.camera.Position()[0] -= float32(xOff)
-	uiHolder.camera.Position()[1] += float32(yOff)
-	uiHolder.camera.Update()
 }

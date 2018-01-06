@@ -48,6 +48,15 @@ func NewTexture(width, height int32, filterMin, filterMax TextureFilter, wrapS, 
 	return &tex, nil
 }
 
+func (t *Texture) SetFilter(min, max TextureFilter) {
+	t.filterMin = min
+	t.filterMax = max
+	gl.ActiveTexture(gl.TEXTURE0)
+	t.Bind()
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, int32(min))
+	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, int32(max))
+}
+
 func (t *Texture) GetWidth() int32 {
 	return t.width
 }
